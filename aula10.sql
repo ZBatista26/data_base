@@ -1,88 +1,100 @@
---Tabela cliente
-create table if not exists CLIENTE(
-ID SERIAL PRIMARY KEY,
-NOME VARCHAR(100) NOT NULL,
-EMAIL VARCHAR(100) NOT NULL UNIQUE,
-TELEFONE VARCHAR(20) NOT NULL UNIQUE,
-DATA_CADASTRO DATE NOT NULL
+
+begin;
+CREATE TABLE autor(
+	id SERIAL PRIMARY KEY,
+	nome VARCHAR(60) NOT NULL,
+	data_nascimento DATE,
+	CONSTRAINT chk_data_nascimento CHECK (data_nascimento <= CURRENT_DATE)
+);
+CREATE TABLE livro(
+	id SERIAL PRIMARY KEY,
+	titulo VARCHAR(60) NOT NULL,
+	id_autor INTEGER,
+	ano_publicacao INT, 
+	CONSTRAINT fk_autor_livro FOREIGN KEY (id_autor) REFERENCES autor(id),
+	CONSTRAINT chk_ano_publicacao CHECK (ano_publicacao >= 1500 AND ano_publicacao <= EXTRACT(YEAR FROM CURRENT_DATE))
+);
+CREATE TABLE usuario(
+	id SERIAL PRIMARY KEY,
+	nome VARCHAR(60) NOT NULL,
+	email VARCHAR(60) UNIQUE,
+	data_adesao DATE,
+	CONSTRAINT chk_data_adesao CHECK (data_adesao <= CURRENT_DATE)
+);
+CREATE TABLE emprestimo(
+	id SERIAL PRIMARY KEY,
+	id_livro INTEGER,
+	id_usuario INTEGER,
+	data_emprestimo DATE NOT NULL,
+	data_devolucao DATE NOT NULL,
+	CONSTRAINT fk_livro FOREIGN KEY (id_livro) REFERENCES livro(id),
+	CONSTRAINT fk_usuario FOREIGN KEY (id_usuario) REFERENCES usuario(id),
+	CONSTRAINT chk_data_devolucao CHECK (data_emprestimo <= data_devolucao),
+	CONSTRAINT uq_livro_emprestimo UNIQUE(id_livro, data_emprestimo)
 );
 
---Tabela serviços
-CREATE TABLE IF NOT EXISTS SERVICOS(
-ID SERIAL PRIMARY KEY,
-NOME VARCHAR(100) NOT NULL,
-DESCRICAO TEXT NOT NULL,
-PRECO NUMERIC (10,2) NOT NULL CHECK  (PRECO > 0),
-TIPO_SERVICO VARCHAR(50) NOT NULL CHECK (TIPO_SERVICO IN ('Consotoria', 'Suporte', 'Manutenção'))
-);
+-- criando as inserções
 
---tabela tecnico
-CREATE TABLE IF NOT EXISTS TECNICO(
-ID SERIAL PRIMARY KEY,
-NOME VARCHAR(100) NOT NULL,
-ESPECIALIDADE VARCHAR(50) NOT NULL,
-DATA_CONTRARACAO DATE NOT NULL
-);
+insert into autor(nome, data_nascimento)
+values('William Shakespeare', '1564-04-23'),
+('Jane Austen', '1800-12-16'),
+('Machado de assis', '1839-06-21'),
+('Jorge Amado', '1970-10-08'),
+('Isabel Allende', '1942-08-02');
+select * from autor
 
---Tabela chamados
-CREATE TABLE IF NOT EXISTS CHAMADOS(
-ID SERIAL PRIMARY KEY,
-CLIENTE_ID INT,
-TECNICO_ID INT,
-SERVICO_ID INT,
-DATA_CHAMADO DATE NOT NULL,
-STATUS VARCHAR(20) NOT NULL CHECK (STATUS IN ('Pendente', 'Em andamento', 'Finalizado')) NOT NULL,
-DESCRICAO TEXT NOT NULL,
-CONSTRAINT FK_CLIENTE FOREIGN KEY (CLIENTE_ID) REFERENCES CLIENTE(ID) ON DELETE CASCADE,
-CONSTRAINT FK_TECNICO FOREIGN KEY (TECNICO_ID) REFERENCES TECNICO(ID) ON DELETE CASCADE,
-CONSTRAINT FK_SERVICO FOREIGN KEY (SERVICO_ID) REFERENCES SERVICOS(ID) ON DELETE CASCADE
-);
+insert into livro(titulo, id_autor, ano_publicacao)
+values('Romeu e julieta', 1, 1597),
+('Orgulho e preconceito', 2, 1813),
+('Dom Casmurro', 3, 1899),
+('Casa de palha', 4, 1931),
+('A Casa dos espíritos', 5, 1982);
+select * from livro
 
---TABELA PAGAMENTOS
-CREATE TABLE IF NOT EXISTS PAGAMENTOS(
-ID SERIAL PRIMARY KEY,
-CLIENTE_ID INT,
-CHAMADOS_ID INT,
-VALOR_PAGO NUMERIC (10,2) NOT NULL CHECK (VALOR_PAGO > 0),
-DATA_PAGAMENTO DATE NOT NULL,
-FORMA_DE_PAGAMENTO VARCHAR(50) NOT NULL,
-CONSTRAINT FK_CLIENTE_PAGAMENTO FOREIGN KEY (CLIENTE_ID) REFERENCES CLIENTE(ID) ON DELETE CASCADE,
-CONSTRAINT FK_CHAMADOS FOREIGN KEY (CHAMADOS_ID) REFERENCES CHAMADOS(ID) ON DELETE CASCADE
-);
+insert into usuario(nome, email, data_adesao)
+values('francico01', 'francisco01@email.com', '2023-12-2'),
+('francisco02', 'francisco02@email.com', '2023-12-3'),
+('francisco03', 'francisco03@email.com', '2023-12-4'),
+('francisco04', 'francisco04@email.com', '2023-12-5'),
+('francisco05', 'francisco05@email.com', '2023-12-06');
+select * from usuario
 
---Tabela inserts
-INSERT INTO CLIENTE(NOME, EMAIL, TELEFONE, DATA_CADASTRO)
-VALUES('João Silva', 'joao@email.com', '(11) 98765-4321', '2023-01-15'),
-('Maria Oliveira', 'maria@email.com', '(31) 99654- 3210', '2023-02-20'),
-('Pedro Souza', 'pedro@email.com', '(31) 99765- 1234', '2023-03-10'),
-('Ana Costa', 'ana@email.com', '(41) 98888-9999', '2023-04-25'),
-('Lucas almeida', 'lucas@email.com', '(61) 99123-4567', '2023-05-30');
+insert into emprestimo(id_livro, id_usuario, data_emprestimo, data_devolucao)
+values(1, 1, '2024-12-19', '2025-01-26'),
+(2, 2, '2024-12-19', '2025-01-27'),
+(3, 3, '2024-12-19', '2025-01-28'),
+(4, 4, '2024-12-19', '2025-01-29'),
+(5, 5, '2024-12-19', '2025-01-30');
+select * from emprestimo
 
-INSERT INTO SERVICOS(NOME, DESCRICAO, PRECO, TIPO_SERVICO)
-VALUES('Consultoria em TI', 'Consultoria especializada em infraestrutura de TI', '500.00', 'Consultoria'),
-('Manutenção de Equipamentos', 'Manutenção preventiva e corretiva de equipamentos', '300.00', 'Manutenção'),
-('Suporte Técnico', 'Suporte remoto e presencial para empresas', '200.00', 'Suporte');
+-- consulta SQL
 
-INSERT INTO TECNICO(NOME, ESPECIALIDADE, DATA_CONTRARACAO)
-VALUES('Carlos Oliveira', 'Consultoria TI', '2022-10-10'),
-('Fernanda Souza', 'Manutenção', '2021-06-15' ),
-('Roberto Costa', 'Suporte Técnico', '2020-08-20');
+--01
+SELECT LIVRO.TITULO, AUTOR.NOME AS AUTOR FROM LIVRO JOIN AUTOR ON LIVRO.ID_AUTOR = AUTOR.ID;
 
-INSERT INTO CHAMADOS(CLIENTE_ID, TECNICO_ID, SERVICO_ID, DATA_CHAMADO, STATUS, DESCRICAO)
-VALUES(4, 1, 1, '2023-06-01', 'Pendente', 'Fiação da casa queimada'),
-(5, 2, 2, '2023-07-10', 'Em andamento', 'Vazamento na tubulação'),
-(6, 3, 3, '2023-08-05', 'Finalizado', 'Reparação no ar-condicionado'),
-(7, 1, 2, '2023-09-20', 'Pendente', 'Manutenção no servidor'),
-(8, 2, 1, '2023-10-15', 'Finalizado', 'Suporte para software');
+--02
+SELECT NOME, EMAIL FROM USUARIO;
 
-INSERT INTO PAGAMENTOS(CLIENTE_ID, CHAMADOS_ID, VALOR_PAGO, DATA_PAGAMENTO, FORMA_DE_PAGAMENTO)
-VALUES(4, 7, '350.00', '2023-06-15' , 'Cartão de Crédito'),
-(5, 8, '450.00', '2023-07-15','Cartão de Crédito'),
-(6, 9, '600.00', '2023-08-10', 'Cartão de Crédito'),
-(7, 10, '300.00', '2023-09-25', 'Cartão de Crédito');
+--03
+SELECT USUARIO.NOME, LIVRO.TITULO, EMPRESTIMO.DATA_EMPRESTIMO, EMPRESTIMO.DATA_DEVOLUCAO FROM EMPRESTIMO 
+JOIN LIVRO ON ID_LIVRO = LIVRO.ID
+JOIN USUARIO ON ID_USUARIO = USUARIO.ID;
 
-SELECT * FROM CLIENTE
-SELECT * FROM SERVICOS
-SELECT * FROM TECNICO
-SELECT * FROM CHAMADOS
-SELECT * FROM PAGAMENTOS
+--04
+SELECT LIVRO.TITULO, EMPRESTIMO.DATA_EMPRESTIMO
+FROM EMPRESTIMO
+JOIN LIVRO ON ID_LIVRO = LIVRO.ID
+WHERE DATA_DEVOLUCAO = NULL;
+
+--18
+SELECT USUARIO.NOME as nome_usuario, LIVRO.TITULO 
+FROM EMPRESTIMO
+JOIN LIVRO ON ID_LIVRO = LIVRO.ID
+JOIN USUARIO ON ID_USUARIO = USUARIO.ID
+JOIN AUTOR ON ID_AUTOR = AUTOR.ID
+WHERE AUTOR.NOME = 'William Shakespeare';
+
+
+
+rollback;
+
