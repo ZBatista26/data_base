@@ -30,8 +30,7 @@ VALUES ('jgfjh', 3), ('jhgfjhgf', 1), ('pato donald', 1), ('hulk', 3), ('tropa d
 --questão 05
 insert into genero (id, nome)
 values (6, 'Ducumentario'), (7, 'suspense');
-
---questão 06
+ 
 select NOME from filmes where ID_GENERO = 2;
 
 --questão 07
