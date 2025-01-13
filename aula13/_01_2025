@@ -1,0 +1,121 @@
+-- 1. Quantidade de bibliotecário responsável por cada unidade.
+
+select * from bibliotecario;
+select unidade.nome, count(bibliotecario.id_unidade) as total_bibliotecario
+from bibliotecario
+join unidade on bibliotecario.id_unidade = unidade.id
+group by unidade.nome
+
+--2. Quantidade de livros disponíveis em cada unidade.
+select * from livro
+select * 
+select unidade.nome, count(livro.id_unidade) as total_livros
+from livro
+join unidade on livro.id_unidade = unidade.id
+group by unidade.nome
+
+--3. Quantidade de empréstimo realizados em cada unidade.
+select * from emprestimo;
+select * from unidade;
+select * from livro;
+select unidade.nome, count(emprestimo.id_livro) as total_emprestimo
+from emprestimo
+join livro on emprestimo.id_livro = livro.id
+join unidade on livro.id_unidade = unidade.id
+group by unidade.nome
+
+--5. Quantidade total de usuários cadastrados no sistema.
+select * from usuario;
+select count (id) as total_usuario
+from usuario;
+
+--6. Quantidade total de livros cadastrados no sistema.
+select * from livro;
+select count (id) as total_livros
+from livro;
+
+--7. Qauntidade de livros emprestados por cada usuário. Ordene pelo total encontrado em ordem decrescente.s
+select * from emprestimo;
+select * from usuario;
+select usuario.nome, count(id_livro) as total_emprestimo
+from emprestimo
+join usuario on emprestimo.id_usuario = usuario.id
+group by usuario.nome
+order by total_emprestimo desc
+
+--8. Quantidade de empréstimo realizados por mês. Use extract(month from data_emprestimo) para extrair o mês.
+select * from emprestimo1
+
+--9.Média de números de páginas dos livros cadastardos no sistema.
+select * from livro
+select round (avg(numero_paginas),2) as total_emprestimo
+from livro
+
+--10. Quantidade de livros cadastrados em cada categoria.
+select * from livro 
+select * from categoria 
+select categoria.nome, count(livro.id) as total_livros
+from categoria
+join livro on categoria.id = livro.id_categoria
+group by categoria.nome;
+
+--11. Liste os livros cujos autores possuem nacionalidade americana.
+select * from livro
+select * from autor
+select livro.titulo, autor.nome 
+from livro
+join autor on livro.id_autor = autor.id
+where autor.nacionalidade = 'Americana'
+
+--12. Qauantidade de livros emprestados atualmente (não devolvidos).
+select * from emprestimo
+select count(emprestimo.id) as total_livros_emprestados 
+from livro
+join emprestimo on livro.id = emprestimo.id_livro
+where emprestimo.devolvido = 'false'
+
+
+--13. Unidade com mais de 60 livros cadastrados.
+select * from unidade;
+select * from livro;
+select unidade.nome, count(livro.id) as total_livros
+from unidade
+join livro on livro.id_unidade = unidade.id
+group by unidade.nome
+having count(livro.id) > 60
+order by unidade.nome
+
+
+--14 Quantidade de livros por autor. Ordene pelo total e em ordem decrescente.
+select * from livros 
+select * from autor 
+select autor.nome, count(livro.id) as total_livros
+from autor
+join livro on livro.id_autor = autor.id
+group by autor.nome
+order by total_livros desc
+
+--15 Categoria que possuaem mais de 5 livros disponiveis atualmente.
+select * from categoria;
+select * from livros;
+
+select categoria.nome, count(livro.id) as total_livros_disponiveis
+from categoria
+join livro on livro.id_categoria = categoria.id
+where livro.disponivel = 'True'
+group by categoria.nome
+having count(livro.id_categoria) > 5
+order by total_livros_disponiveis desc
+
+
+--16 Unidade com pelo menos um emprestimo em aberto. 
+select * from unidade;
+select * from livro;
+select * from emprestimo;
+
+select unidade.nome
+from unidade 
+join livro on livro.id_unidade = unidade.id
+join emprestimo on emprestimo.id_livro = livro.id
+where emprestimo.devolvido = 'False'
+group by unidade.nome

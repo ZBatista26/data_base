@@ -101,8 +101,9 @@ order by cliente.nome asc;
 
 --2.Liste o total de vendas realizadas por cada funcioonrio.
 Select *from venda;
-select funcionario.nome, count(venda.funcionario_id) 
-as total_vendas_funcionario from venda join funcionario on venda.funcionario_id = funcionario.id
+select funcionario.nome, count(venda.funcionario_id) as total_vendas_funcionario 
+from venda 
+join funcionario on venda.funcionario_id = funcionario.id
 group by funcionario.nome
 order by funcionario.nome;
 	
